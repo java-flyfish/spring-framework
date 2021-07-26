@@ -521,6 +521,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			/**
+			 * 这里才是实际上完成bean的创建过程
+			 */
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Finished creating instance of bean '" + beanName + "'");
@@ -561,8 +564,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		if (instanceWrapper == null) {
+			/**
+			 * 完成实例化的过程
+			 */
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+		/**
+		 * 这里之后就拿到了bean的半成品
+		 */
 		Object bean = instanceWrapper.getWrappedInstance();
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
@@ -592,12 +601,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			/**
+			 * 把创建的半成品bean放入到缓存
+			 */
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
+			/**
+			 * 这里完成属性填充工作
+			 */
 			populateBean(beanName, mbd, instanceWrapper);
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
@@ -1431,6 +1446,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (pvs != null) {
+			/**
+			 * 属性填充工作
+			 */
 			applyPropertyValues(beanName, mbd, bw, pvs);
 		}
 	}
@@ -1677,6 +1695,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				deepCopy.add(pv);
 			}
 			else {
+				/**
+				 * 获取属性值
+				 */
 				String propertyName = pv.getName();
 				Object originalValue = pv.getValue();
 				if (originalValue == AutowiredPropertyMarker.INSTANCE) {

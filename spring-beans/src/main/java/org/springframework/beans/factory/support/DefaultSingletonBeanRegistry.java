@@ -75,12 +75,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 
 	/** Cache of singleton objects: bean name to bean instance. */
+	/**
+	 * 一级缓存
+	 */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
 	/** Cache of singleton factories: bean name to ObjectFactory. */
+	/**
+	 * 二级缓存
+	 */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
 	/** Cache of early singleton objects: bean name to bean instance. */
+	/**
+	 * 三级缓存
+	 */
 	private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
@@ -154,7 +163,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
+			/**
+			 * 第一次进来的时候一级缓存里是没有的
+			 */
 			if (!this.singletonObjects.containsKey(beanName)) {
+				/**
+				 * 放入到三级缓存中，但是value不是之前创建的对象，是一个函数式接口getEarlyBeanReference(beanName, mbd, bean)
+				 */
 				this.singletonFactories.put(beanName, singletonFactory);
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);
@@ -179,7 +194,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		// Quick check for existing instance without full singleton lock
+		/**
+		 * 一级缓存
+		 */
 		Object singletonObject = this.singletonObjects.get(beanName);
+		/**
+		 * 一级缓存中是否已经有bean了，第一次进来的时候是没有的
+		 * 然后判断bean是否在创建过程中
+		 */
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			singletonObject = this.earlySingletonObjects.get(beanName);
 			if (singletonObject == null && allowEarlyReference) {
@@ -231,6 +253,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					/**
+					 * 开始调用传入的函数式接口，实际上是调用传进来的createBean(beanName, mbd, args);
+					 */
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}

@@ -938,6 +938,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * Finish the initialization of this context's bean factory,
 	 * initializing all remaining singleton beans.
+	 * 循环依赖在这个方法里面解决
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		// Initialize conversion service for this context.
@@ -984,6 +985,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Instantiate all remaining (non-lazy-init) singletons.
 		/**
 		 * 实例化剩下的单例对象
+		 * 循环依赖也在这里解决
 		 */
 		beanFactory.preInstantiateSingletons();
 	}

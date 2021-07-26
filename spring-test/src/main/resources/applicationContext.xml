@@ -3,7 +3,16 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-	<bean id="teacher" class="org.springframework.debug.bean.Teacher">
+	<!--对象的实例化过程，主要看refresh()-->
+	<!--<bean id="teacher" class="org.springframework.debug.bean.Teacher">
 		<property name="name" value="zhangsan"></property>
+	</bean>-->
+	<!--演示循环依赖begin，没有指定scope，默认是单例-->
+	<bean id="a" class="org.springframework.debug.bean.A" >
+		<property name="b" ref="b"></property>
 	</bean>
+	<bean id="b" class="org.springframework.debug.bean.B">
+		<property name="a" ref="a"></property>
+	</bean>
+	<!--演示循环依赖end-->
 </beans>
